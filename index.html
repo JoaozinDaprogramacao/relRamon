@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relatório de Pagamentos - Foco nos Dias de Pagamento</title>
+  <!-- Incluindo a biblioteca Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Estilos Gerais */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
+    header, footer {
+      background: #35424a;
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+    }
+    header h1, footer p {
+      margin: 0;
+    }
+    main {
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    /* Estilos dos Gráficos */
+    .chart-container {
+      position: relative;
+      margin: auto;
+      height: 400px;
+      width: 90%;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 40px;
+    }
+    /* Estilos da Tabela */
+    .table-container {
+      overflow-x: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+    }
+    table thead {
+      background: #35424a;
+      color: #fff;
+    }
+    table th, table td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    @media (max-width: 600px) {
+      table th, table td {
+        font-size: 12px;
+        padding: 8px;
+      }
+    }
+    /* Estilo para destacar status de pagamento */
+    .status-certo {
+      background: #d4edda;
+      color: #155724;
+      font-weight: bold;
+    }
+    .status-errado {
+      background: #f8d7da;
+      color: #721c24;
+      font-weight: bold;
+    }
+    .status-aviso {
+      background: #fff3cd;
+      color: #856404;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Relatório de Pagamentos - Foco nos Dias de Pagamento</h1>
+  </header>
+
+  <main>
+    <!-- Gráfico de Pagamento por Dia -->
+    <div class="chart-container">
+      <canvas id="diasChart"></canvas>
+    </div>
+
+    <!-- Resumo em Texto -->
+    <div class="table-container">
+      <h2>Resumo</h2>
+      <p id="resumoPagamentos"></p>
+    </div>
+
+    <!-- Tabela com os Dados Detalhados -->
+    <div class="table-container">
+      <h2>Detalhes dos Pagamentos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th>Dia da Semana</th>
+            <th>Dia de Pagamento</th>
+            <th>Aviso Prévio</th>
+            <th>Valor Unitário</th>
+            <th>Total (Valor)</th>
+            <th>Forma de Pagamento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="status-certo">
+            <td>Agosto</td>
+            <td>Quinta</td>
+            <td>1</td>
+            <td>Não</td>
+            <td>R$ 285,10</td>
+            <td>R$ 285,10</td>
+            <td>Banco Inter</td>
+          </tr>
+          <tr class="status-aviso">
+            <td>Setembro</td>
+            <td>Segunda (aviso prévio de atraso)</td>
+            <td>2</td>
+            <td>Sim</td>
+            <td>R$ 244,88</td>
+            <td>R$ 489,76</td>
+            <td>Banco Inter</td>
+          </tr>
+          <tr class="status-certo">
+            <td>Outubro</td>
+            <td>Terça</td>
+            <td>1</td>
+            <td>Não</td>
+            <td>R$ 264,99</td>
+            <td>R$ 264,99</td>
+            <td>Banco Inter</td>
+          </tr>
+          <tr class="status-certo">
+            <td>Novembro</td>
+            <td>Sexta</td>
+            <td>1</td>
+            <td>Não</td>
+            <td>R$ 264,99</td>
+            <td>R$ 264,99</td>
+            <td>Outro (não Inter)</td>
+          </tr>
+          <tr class="status-errado">
+            <td>Dezembro</td>
+            <td>Quinta</td>
+            <td>5</td>
+            <td>Não</td>
+            <td>R$ 264,99</td>
+            <td>R$ 1.324,95</td>
+            <td>Banco Inter</td>
+          </tr>
+          <tr class="status-errado">
+            <td>Janeiro</td>
+            <td>Sábado</td>
+            <td>4</td>
+            <td>Não</td>
+            <td>R$ 264,99</td>
+            <td>R$ 1.059,96</td>
+            <td>Banco Inter</td>
+          </tr>
+          <tr class="status-errado">
+            <td>Fevereiro</td>
+            <td>Terça</td>
+            <td>4</td>
+            <td>Não</td>
+            <td>R$ 264,99</td>
+            <td>R$ 1.059,96</td>
+            <td>Banco Inter</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer>
+    <p>Feito por João Emanuel para Ramon Emanuel</p>
+  </footer>
+
+  <script>
+    // Dados dos pagamentos – focando no dia (número entre parênteses) e se teve aviso prévio
+    const pagamentos = [
+      { mes: 'Agosto', diaSemana: 'Quinta', diaPagamento: 1, aviso: false, valorUnit: 285.10, qtde: 1, forma: 'Banco Inter' },
+      { mes: 'Setembro', diaSemana: 'Segunda', diaPagamento: 2, aviso: true, valorUnit: 244.88, qtde: 2, forma: 'Banco Inter' },
+      { mes: 'Outubro', diaSemana: 'Terça', diaPagamento: 1, aviso: false, valorUnit: 264.99, qtde: 1, forma: 'Banco Inter' },
+      { mes: 'Novembro', diaSemana: 'Sexta', diaPagamento: 1, aviso: false, valorUnit: 264.99, qtde: 1, forma: 'Outro (não Inter)' },
+      { mes: 'Dezembro', diaSemana: 'Quinta', diaPagamento: 5, aviso: false, valorUnit: 264.99, qtde: 5, forma: 'Banco Inter' },
+      { mes: 'Janeiro', diaSemana: 'Sábado', diaPagamento: 4, aviso: false, valorUnit: 264.99, qtde: 4, forma: 'Banco Inter' },
+      { mes: 'Fevereiro', diaSemana: 'Terça', diaPagamento: 4, aviso: false, valorUnit: 264.99, qtde: 4, forma: 'Banco Inter' }
+    ];
+
+    // Cálculos para resumo
+    const totalPagamentos = pagamentos.length;
+    const pagosCerto = pagamentos.filter(p => p.diaPagamento === 1).length;
+    const pagosErrado = pagamentos.filter(p => p.diaPagamento !== 1).length;
+    const erradosComAviso = pagamentos.filter(p => p.diaPagamento !== 1 && p.aviso).length;
+    const erradosSemAviso = pagosErrado - erradosComAviso;
+
+    // Exibe o resumo em um parágrafo
+    const resumoEl = document.getElementById('resumoPagamentos');
+    resumoEl.innerHTML = `
+      Total de pagamentos: <strong>${totalPagamentos}</strong><br>
+      Pagos no dia certo: <strong>${pagosCerto}</strong><br>
+      Pagos no dia errado: <strong>${pagosErrado}</strong> <br>
+      &nbsp;&nbsp;• Com aviso prévio: <strong>${erradosComAviso}</strong><br>
+      &nbsp;&nbsp;• Sem aviso prévio: <strong>${erradosSemAviso}</strong>
+    `;
+
+    // Dados para o gráfico de barras
+    const diasLabels = ['Pago no dia certo (1)', 'Pago no dia errado com aviso', 'Pago no dia errado sem aviso'];
+    const diasDados = [
+      pagosCerto,
+      erradosComAviso,
+      erradosSemAviso
+    ];
+
+    const ctx = document.getElementById('diasChart').getContext('2d');
+    const diasChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: diasLabels,
+        datasets: [{
+          label: 'Quantidade de Pagamentos',
+          data: diasDados,
+          backgroundColor: [
+            'rgba(40, 167, 69, 0.6)',    // Verde para dia certo
+            'rgba(255, 193, 7, 0.6)',     // Amarelo para errado com aviso
+            'rgba(220, 53, 69, 0.6)'      // Vermelho para errado sem aviso
+          ],
+          borderColor: [
+            'rgba(40, 167, 69, 1)',
+            'rgba(255, 193, 7, 1)',
+            'rgba(220, 53, 69, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.parsed.y + ' pagamento(s)';
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
